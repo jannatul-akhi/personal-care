@@ -43,46 +43,6 @@ export function HeroSection() {
           </div>
         </div>
       </div>
-
-      {/* Category Icons */}
-      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            {
-              name: "Women's Care",
-              icon: "👩",
-              color: "bg-pink-100 text-pink-600",
-            },
-            {
-              name: "Kids Care",
-              icon: "👶",
-              color: "bg-blue-100 text-blue-600",
-            },
-            {
-              name: "Men's Care",
-              icon: "👨",
-              color: "bg-green-100 text-green-600",
-            },
-            {
-              name: "Hair Care",
-              icon: "💇",
-              color: "bg-purple-100 text-purple-600",
-            },
-          ].map((category) => (
-            <div
-              key={category.name}
-              className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100"
-            >
-              <div
-                className={`w-12 h-12 rounded-full ${category.color} flex items-center justify-center text-2xl`}
-              >
-                {category.icon}
-              </div>
-              <span className="font-medium text-gray-700">{category.name}</span>
-            </div>
-          ))}
-        </div>
-      </div> */}
     </section>
   );
 }

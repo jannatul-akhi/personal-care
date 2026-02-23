@@ -3,8 +3,8 @@ import Image from "next/image";
 
 export function ContactSection() {
   return (
-    <section className="pt-20 bg-white">
-      <div className="max-w-[1400px] mx-auto ">
+    <section className="">
+      <div className="">
         <div className="relative rounded-[2rem] overflow-hidden bg-[#fafafa] min-h-[350px] flex items-center">
           {/* Abstract Patterns Background */}
           <div className="absolute inset-0 z-0 opacity-40 pointer-events-none overflow-hidden">

@@ -23,7 +23,6 @@ const page = () => {
         <ShopNow />
         <BestApproach />
         <ContactSection />
-        
       </main>
     </div>
   );
