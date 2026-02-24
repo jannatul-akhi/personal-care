@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export function ShopNow() {
   return (
@@ -34,9 +35,11 @@ export function ShopNow() {
               Shop our selection of luxury t-shirts and polo shirts, the ultimate casual garments. We
               offer exclusive fabrics in cashmere.
             </p>
-            <button className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#5c723d] text-white rounded-full font-bold hover:bg-[#4a5c31] transition-all transform hover:-translate-y-0.5 shadow-lg group">
+            <Link href="/shop">
+            <button className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#5c723d] text-white rounded-full font-bold hover:bg-[#4a5c31] transition-all transform hover:-translate-y-0.5 shadow-lg group cursor-pointer">
               Shop Now <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
+            </Link>
           </div>
 
           {/* Right Decorative Image: Smiling Model */}
