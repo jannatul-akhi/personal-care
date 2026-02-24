@@ -14,7 +14,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <AuthLayout sideComponent={<AuthSide />}>{children}</AuthLayout>;
+  return <>{children}</>;
 }
-
-// className=" min-h-screen w-full flex items-center justify-center lg:py-20 p-4"
