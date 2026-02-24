@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
+   const router = useRouter();
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -11,7 +14,7 @@ const AuthForm = () => {
         {/* Toggle Switch */}
         <div className="flex justify-center mb-8">
           <div className="bg-gray-100 rounded-full p-1 flex">
-            <button
+            <button 
               onClick={() => setIsLogin(true)}
               className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
                 isLogin
@@ -91,8 +94,9 @@ const AuthForm = () => {
               </div>
 
               <button
-                type="submit"
-                className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors"
+                onClick={() => router.push("/account")}
+                type="button"
+                className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors cursor-pointer"
               >
                 Login
               </button>

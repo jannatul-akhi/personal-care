@@ -1,8 +1,9 @@
-import SingleShop from "@/feature/shop/SingleShop";
-import React from "react";
+import { ShopSingleProduct } from "@/feature/shop/ShopSingleProduct";
 
-const SinglePage = () => {
-  return <SingleShop />;
-};
-
-export default SinglePage;
+export default function SingleProductPage() {
+  return (
+    <div className="min-h-screen bg-[#F9F9F9]">
+      <ShopSingleProduct />
+    </div>
+  );
+}

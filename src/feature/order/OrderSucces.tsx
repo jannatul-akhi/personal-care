@@ -5,6 +5,7 @@ import {
   PartyPopper,
   UtensilsCrossed,
 } from "lucide-react";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -86,9 +87,9 @@ const OrderSucces: React.FC = () => {
             Thank you for your order! We're dedicated to providing you with the
             best service and hope you love your purchase.
           </p>
-          <button className="bg-red-600 px-8 py-3 text-sm font-bold text-white transition hover:bg-red-700 rounded-sm shadow-sm cursor-pointer">
+          <Link href="/" className="bg-red-600 px-8 py-3 text-sm font-bold text-white transition hover:bg-red-700 rounded-sm shadow-sm cursor-pointer">
             Continue Shopping
-          </button>
+          </Link>
         </div>
 
         {/* Zigzag Divider */}

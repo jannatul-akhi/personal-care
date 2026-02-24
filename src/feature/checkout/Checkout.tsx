@@ -15,6 +15,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Shipment from "@/components/shared/shipment/Shipment";
+import { useRouter } from "next/navigation";
 
 interface CartItem {
   id: number;
@@ -34,6 +35,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">(
     "online",
   );
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     firstName: "Didarul",
@@ -109,6 +111,10 @@ const Checkout = () => {
     setFormData({ ...savedData });
     setIsEditing(false);
   };
+
+  const handleCheckout = () => { 
+    router.push("/order")
+   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -592,7 +598,7 @@ const Checkout = () => {
             </div>
 
             {/* Confirm Order Button */}
-            <button className="w-full bg-red-600 text-white py-3 rounded font-medium hover:bg-red-700 transition-colors mb-6">
+            <button onClick={handleCheckout} className="w-full bg-red-600 text-white py-3 rounded font-medium hover:bg-red-700 transition-colors mb-6">
               Confirm Your Order
             </button>
 

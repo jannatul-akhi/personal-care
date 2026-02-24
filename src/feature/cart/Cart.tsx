@@ -10,6 +10,7 @@ import {
   Gift,
 } from "lucide-react";
 import Shipment from "@/components/shared/shipment/Shipment";
+import { useRouter } from "next/navigation";
 
 interface CartItem {
   id: number;
@@ -55,6 +56,7 @@ const Cart = () => {
     },
   ]);
   const [wishlist, setWishlist] = useState<number[]>([]);
+  const router = useRouter();
 
   const updateQuantity = (id: number, delta: number) => {
     setCartItems((items) =>
@@ -85,6 +87,10 @@ const Cart = () => {
   const formatPrice = (price: number) => {
     return `৳${price.toLocaleString("en-IN")}`;
   };
+
+  const handleCheckout = () => {
+    router.push("/checkout")
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -232,7 +238,7 @@ const Cart = () => {
               </div>
 
               {/* Checkout Button */}
-              <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded transition-colors mb-6">
+              <button onClick={handleCheckout} className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded transition-colors mb-6">
                 Proceed To Checkout
               </button>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,15 +77,15 @@ export function Header() {
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Heart className="w-5 h-5 text-gray-700" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <Link href="/login" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <User className="w-5 h-5 text-gray-700" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+              </Link>
+              <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
                 <ShoppingCart className="w-5 h-5 text-gray-700" />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-xs rounded-full flex items-center justify-center">
                   3
                 </span>
-              </button>
+              </Link>
 
               {/* Mobile Menu Button */}
               <button

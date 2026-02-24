@@ -1,4 +1,5 @@
 import { ShoppingCart, Heart, Star, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const products = [
   {
@@ -67,7 +68,7 @@ export function BestSellingProducts() {
         {/* Products Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-y-10 gap-x-4 lg:gap-x-6">
           {products.map((product) => (
-            <div key={product.id} className="group cursor-pointer">
+            <Link href={`/shop/${product.id}`} key={product.id} className="group cursor-pointer">
               {/* Image Box */}
               <div className="relative aspect-square bg-[#f3f4f0] rounded-xl overflow-hidden mb-4 transition-all duration-300">
                 <img
@@ -115,14 +116,14 @@ export function BestSellingProducts() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
         {/* View All Button */}
         <div className="text-center mt-12">
-          <button className="inline-flex items-center gap-2 px-8 py-3 bg-[#4a6741] text-white rounded-full font-medium hover:bg-[#3d5435] transition-colors shadow-md">
+          <Link href="/shop" className="inline-flex items-center gap-2 px-8 py-3 bg-[#4a6741] text-white rounded-full font-medium hover:bg-[#3d5435] transition-colors shadow-md">
             View All Products <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
     </section>
