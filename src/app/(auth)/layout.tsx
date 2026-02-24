@@ -1,5 +1,4 @@
 import AuthLayout from "@/feature/auth/AuthLayout";
-import AuthSide from "@/feature/auth/AuthSide";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,7 +13,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <AuthLayout sideComponent={<AuthSide />}>{children}</AuthLayout>;
+  return <AuthLayout>{children}</AuthLayout>;
 }
 
 // className=" min-h-screen w-full flex items-center justify-center lg:py-20 p-4"
