@@ -17,15 +17,15 @@ export default async function DashboardLayout({
   return (
     <>
       <Header />
-      <div className="flex min-h-screen bg-gray-100">
-        {/* Sidebar - fixed or sticky */}
-        <aside className="hidden md:block w-64 bg-white shadow-md">
+      <div className="flex h-[calc(100vh-120px)] overflow-hidden bg-gray-100">
+        {/* Sidebar - Scrollable independently */}
+        <aside className="hidden md:block w-72 bg-white shadow-sm overflow-y-auto scrollbar-hide border-r border-gray-100">
           <Sidebar user="OLI" />
         </aside>
 
-        {/* Main content */}
-        <main className="flex-1 p-4 md:p-8 overflow-auto">
-          <div className="max-w-7xl mx-auto">{children}</div>
+        {/* Main content - Fixed */}
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto scrollbar-hide">
+          <div className="max-w-7xl mx-auto h-full">{children}</div>
         </main>
       </div>
       <Footer />
