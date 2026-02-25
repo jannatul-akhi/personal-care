@@ -3,10 +3,10 @@ import Cookies from "js-cookie";
 
 export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_URL}`,
+    baseUrl: `${process.env.NEXT_PUBLIC_URL}/api`,
     credentials: "include",
     prepareHeaders: (headers) => {
-      const token = Cookies?.get("token");
+      const token = Cookies?.get("auth_token");
       if (token) {
         headers.set("Authorization", `${token}`);
       }

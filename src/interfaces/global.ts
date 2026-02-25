@@ -1,10 +1,21 @@
 export interface UserProfile {
   id: string;
+  email: string;
+  username: string | null;
   firstName: string;
   lastName: string;
-  email: string;
-  profilePicture: string | null;
-  role: string; // Or use a union type like "INDIVIDUAL" | "ORGANIZATION" | etc. if you know all possible values
+  displayName: string;
+  role: string;
+  status: string;
+  emailVerifiedAt: string | null;
+  phone: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  isDeleted: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }
 
 export type ErrorTypes = {
