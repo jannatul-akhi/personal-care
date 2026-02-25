@@ -19,16 +19,18 @@ const loginSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-const registerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  phone: z.string().min(11, "Include your phone number"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    phone: z.string().min(11, "Include your phone number"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
@@ -64,15 +66,18 @@ const AuthForm = () => {
     try {
       const response = await signIn(data).unwrap();
       if (response?.success) {
-        // Set cookie and Redux state
-        Cookies.set("auth_token", response.data.token, { expires: data.rememberMe ? 30 : undefined });
+        Cookies.set("auth_token", response.data.token, {
+          expires: data.rememberMe ? 30 : undefined,
+        });
         dispatch(setUser(response));
 
-        toast.success(response.message || "Login successful");
-        router.push("/"); // Redirect to home or intended page
+        toast.success("Login successful");
+        router.push("/");
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Login failed. Please check your credentials.");
+      toast.error(
+        error?.data?.message || "Login failed. Please check your credentials.",
+      );
     }
   };
 
@@ -83,13 +88,15 @@ const AuthForm = () => {
       if (response?.success) {
         toast.success(response.message || "Registration successful");
         if (response.data.requiresVerification) {
-          router.push("/otp"); // Assuming verification is needed
+          router.push("/otp");
         } else {
           setIsLogin(true); // Switch to login
         }
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Registration failed. Please try again.");
+      toast.error(
+        error?.data?.message || "Registration failed. Please try again.",
+      );
     }
   };
 
@@ -101,19 +108,21 @@ const AuthForm = () => {
           <div className="bg-gray-100 rounded-full p-1 flex">
             <button
               onClick={() => setIsLogin(true)}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${isLogin
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+                isLogin
                   ? "bg-white text-green-700 shadow-sm"
                   : "text-gray-400 hover:text-gray-600"
-                }`}
+              }`}
             >
               Log in
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${!isLogin
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+                !isLogin
                   ? "bg-white text-green-700 shadow-sm"
                   : "text-gray-400 hover:text-gray-600"
-                }`}
+              }`}
             >
               Register
             </button>
@@ -146,17 +155,25 @@ const AuthForm = () => {
               Your arrival marks of something great.
             </p>
 
-            <form onSubmit={handleLoginSubmit(onLoginSubmit)} className="space-y-4">
+            <form
+              onSubmit={handleLoginSubmit(onLoginSubmit)}
+              className="space-y-4"
+            >
               <div>
                 <input
                   {...loginRegister("identifier")}
                   type="text"
                   placeholder="E-mail or Phone Number"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${loginErrors.identifier ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    loginErrors.identifier
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 {loginErrors.identifier && (
-                  <p className="text-red-500 text-xs mt-1">{loginErrors.identifier.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {loginErrors.identifier.message}
+                  </p>
                 )}
               </div>
 
@@ -165,11 +182,14 @@ const AuthForm = () => {
                   {...loginRegister("password")}
                   type="password"
                   placeholder="Password"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${loginErrors.password ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    loginErrors.password ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {loginErrors.password && (
-                  <p className="text-red-500 text-xs mt-1">{loginErrors.password.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {loginErrors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -211,23 +231,32 @@ const AuthForm = () => {
               Your personal data will be used to support
               <br />
               your experience throughout this website{" "}
-              <Link href="/privacy-policy" className="underline hover:text-green-700">
+              <Link
+                href="/privacy-policy"
+                className="underline hover:text-green-700"
+              >
                 privacy policy
               </Link>
               .
             </p>
 
-            <form onSubmit={handleRegisterSubmit(onRegisterSubmit)} className="space-y-4">
+            <form
+              onSubmit={handleRegisterSubmit(onRegisterSubmit)}
+              className="space-y-4"
+            >
               <div>
                 <input
                   {...registerFormRegister("name")}
                   type="text"
                   placeholder="Name"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.name ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    registerErrors.name ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {registerErrors.name && (
-                  <p className="text-red-500 text-xs mt-1">{registerErrors.name.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {registerErrors.name.message}
+                  </p>
                 )}
               </div>
 
@@ -236,11 +265,14 @@ const AuthForm = () => {
                   {...registerFormRegister("phone")}
                   type="tel"
                   placeholder="Phone Number"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.phone ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    registerErrors.phone ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {registerErrors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{registerErrors.phone.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {registerErrors.phone.message}
+                  </p>
                 )}
               </div>
 
@@ -249,11 +281,14 @@ const AuthForm = () => {
                   {...registerFormRegister("email")}
                   type="email"
                   placeholder="Email Address"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    registerErrors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {registerErrors.email && (
-                  <p className="text-red-500 text-xs mt-1">{registerErrors.email.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {registerErrors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -262,11 +297,16 @@ const AuthForm = () => {
                   {...registerFormRegister("password")}
                   type="password"
                   placeholder="Password"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.password ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    registerErrors.password
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 {registerErrors.password && (
-                  <p className="text-red-500 text-xs mt-1">{registerErrors.password.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {registerErrors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -275,11 +315,16 @@ const AuthForm = () => {
                   {...registerFormRegister("confirmPassword")}
                   type="password"
                   placeholder="Confirm Password"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.confirmPassword ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    registerErrors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 {registerErrors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">{registerErrors.confirmPassword.message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {registerErrors.confirmPassword.message}
+                  </p>
                 )}
               </div>
 
@@ -299,4 +344,3 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
-
