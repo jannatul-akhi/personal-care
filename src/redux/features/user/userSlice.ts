@@ -14,8 +14,17 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      state.user = action.payload.data.user;
-      state.token = action.payload.data.token;
+      if (action.payload?.data?.user !== undefined) {
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.token;
+      } else if (action.payload?.user !== undefined) {
+        state.user = action.payload.user;
+        if (action.payload.token) {
+          state.token = action.payload.token;
+        }
+      } else if (action.payload?.token) {
+        state.token = action.payload.token;
+      }
     },
     logout: (state) => {
       state.user = null;

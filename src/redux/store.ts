@@ -12,9 +12,9 @@ import {
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
 import userReducer from "./features/user/userSlice";
+import cartReducer from "./features/cart/cartSlice";
 import baseApi from "./api/baseApi";
 
-// Create a noop storage for SSR
 const createNoopStorage = () => ({
   getItem() {
     return Promise.resolve(null);
@@ -27,7 +27,6 @@ const createNoopStorage = () => ({
   },
 });
 
-// Use real storage on client, noop on server
 const storage =
   typeof window !== "undefined"
     ? createWebStorage("local")
@@ -41,6 +40,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   user: userReducer,
+  cart: cartReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 
@@ -57,3 +57,6 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
