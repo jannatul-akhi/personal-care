@@ -38,9 +38,10 @@ export function Header() {
 
   // login থাকলে → auth header দিয়ে count
   // login না থাকলে → guestCartId query param  // Fetch count and cart total
-  const { data: cartCountData } = useGetCartCountQuery(
-    { isLoggedIn, guestCartId }
-  );
+  const { data: cartCountData } = useGetCartCountQuery({
+    isLoggedIn,
+    guestCartId,
+  });
 
   const cartCount = cartCountData?.data?.count ?? 0;
 
@@ -161,11 +162,13 @@ export function Header() {
                         className="w-7 h-7 rounded-full object-cover ring-2 ring-[#168B86]/30"
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-[#168B86] flex items-center justify-center ring-2 ring-[#168B86]/20">
-                        <span className="text-white text-xs font-bold">
-                          {avatarLetter}
-                        </span>
-                      </div>
+                      <Image
+                        src="/images/default-avatar.png"
+                        alt="avatar"
+                        width={28}
+                        height={28}
+                        className="w-7 h-7 rounded-full object-cover ring-2 ring-[#168B86]/30"
+                      />
                     )}
                     {/* online dot */}
                     <span className="absolute bottom-1 right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />

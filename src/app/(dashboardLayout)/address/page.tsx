@@ -1,7 +1,18 @@
-import Address from "@/components/dashboard/Address";
+import AddressClient from "@/components/dashboard/AddressClient";
+import { Metadata } from "next";
 
-const AddressFormPage = () => {
-  return <Address mode="create" />;
+export const metadata: Metadata = {
+  title: "My Addresses",
 };
 
-export default AddressFormPage;
+export default function AddressPage() {
+  return <AddressClient />;
+}
+
+// import Address from "@/components/dashboard/Address";
+
+// const AddressFormPage = () => {
+//   return <Address mode="create" />;
+// };
+
+// export default AddressFormPage;

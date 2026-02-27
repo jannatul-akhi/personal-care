@@ -26,7 +26,11 @@ import {
   useCreateAddressMutation,
   Address,
 } from "@/redux/api/address/addressApi";
-import { usePlaceOrderMutation, PaymentMethod, DeliveryOption } from "@/redux/api/order/orderApi";
+import {
+  usePlaceOrderMutation,
+  PaymentMethod,
+  DeliveryOption,
+} from "@/redux/api/order/orderApi";
 import { useCreateCheckoutSessionMutation } from "@/redux/api/payment/paymentApi";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -36,7 +40,9 @@ const PLACEHOLDER = "/images/hero1.png";
 const Checkout = () => {
   const router = useRouter();
   const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
-  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
+  const guestCartId = useSelector(
+    (state: RootState) => state.cart?.guestCartId,
+  );
 
   // Redirect if not logged in (Order placement requires auth)
   useEffect(() => {
@@ -46,9 +52,12 @@ const Checkout = () => {
   }, [isLoggedIn, router]);
 
   // States
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
-  const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>("normal");
+  const [deliveryOption, setDeliveryOption] =
+    useState<DeliveryOption>("normal");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [notes, setNotes] = useState("");
 
@@ -61,13 +70,19 @@ const Checkout = () => {
   });
 
   // Queries & Mutations
-  const { data: cartData, isLoading: isCartLoading } = useGetCartQuery({ guestCartId, isLoggedIn });
-  const { data: addressData, isLoading: isAddressLoading } = useGetAddressesQuery(undefined, {
-    skip: !isLoggedIn,
+  const { data: cartData, isLoading: isCartLoading } = useGetCartQuery({
+    guestCartId,
+    isLoggedIn,
   });
-  const [createAddress, { isLoading: isCreatingAddress }] = useCreateAddressMutation();
+  const { data: addressData, isLoading: isAddressLoading } =
+    useGetAddressesQuery(undefined, {
+      skip: !isLoggedIn,
+    });
+  const [createAddress, { isLoading: isCreatingAddress }] =
+    useCreateAddressMutation();
   const [placeOrder, { isLoading: isPlacingOrder }] = usePlaceOrderMutation();
-  const [createCheckoutSession, { isLoading: isCreatingSession }] = useCreateCheckoutSessionMutation();
+  const [createCheckoutSession, { isLoading: isCreatingSession }] =
+    useCreateCheckoutSessionMutation();
 
   const cartItems = cartData?.data?.items ?? [];
   const addresses = addressData?.data ?? [];
@@ -80,13 +95,20 @@ const Checkout = () => {
     }
   }, [addresses, selectedAddressId]);
 
-  const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleAddressInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setNewAddress((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCreateAddress = async () => {
-    if (!newAddress.fullName || !newAddress.phone || !newAddress.addressLine1 || !newAddress.city) {
+    if (
+      !newAddress.fullName ||
+      !newAddress.phone ||
+      !newAddress.addressLine1 ||
+      !newAddress.city
+    ) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -115,8 +137,12 @@ const Checkout = () => {
       }).unwrap();
 
       if (paymentMethod === "stripe") {
-        const sessionRes = await createCheckoutSession({ orderId: orderRes.data.id }).unwrap();
+        const sessionRes = await createCheckoutSession({
+          orderId: orderRes.data.id,
+        }).unwrap();
         if (sessionRes.url) {
+          console.log("session", sessionRes.url);
+          console.log("location", window.location.href);
           window.location.href = sessionRes.url;
           return;
         }
@@ -125,7 +151,9 @@ const Checkout = () => {
       toast.success("Order placed successfully!");
       router.push("/order");
     } catch (err: any) {
-      toast.error(err.data?.message || "Something went wrong. Please try again.");
+      toast.error(
+        err.data?.message || "Something went wrong. Please try again.",
+      );
     }
   };
 
@@ -134,7 +162,10 @@ const Checkout = () => {
     return p.discountPrice > 0 ? p.discountPrice : p.price;
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + getPrice(item) * item.quantity, 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + getPrice(item) * item.quantity,
+    0,
+  );
   const deliveryCharge = deliveryOption === "express" ? 180 : 120;
   const totalAmount = subtotal + deliveryCharge;
 
@@ -264,7 +295,9 @@ const Checkout = () => {
                       disabled={isCreatingAddress}
                       className="bg-red-600 text-white px-8 py-2.5 rounded-lg font-bold hover:bg-red-700 transition-all disabled:opacity-50 flex items-center gap-2"
                     >
-                      {isCreatingAddress && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {isCreatingAddress && (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      )}
                       Save Address
                     </button>
                     <button
@@ -283,14 +316,17 @@ const Checkout = () => {
                         <div
                           key={addr.id}
                           onClick={() => setSelectedAddressId(addr.id)}
-                          className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${selectedAddressId === addr.id
-                            ? "border-red-500 bg-red-50/50 shadow-md ring-1 ring-red-500"
-                            : "border-gray-100 bg-white hover:border-gray-200"
-                            }`}
+                          className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                            selectedAddressId === addr.id
+                              ? "border-red-500 bg-red-50/50 shadow-md ring-1 ring-red-500"
+                              : "border-gray-100 bg-white hover:border-gray-200"
+                          }`}
                         >
                           <div className="flex flex-col h-full">
                             <div className="flex justify-between items-start mb-2">
-                              <span className="font-bold text-gray-900 line-clamp-1">{addr.fullName}</span>
+                              <span className="font-bold text-gray-900 line-clamp-1">
+                                {addr.fullName}
+                              </span>
                               {selectedAddressId === addr.id && (
                                 <div className="h-5 w-5 rounded-full bg-red-600 flex items-center justify-center">
                                   <div className="h-2 w-2 rounded-full bg-white" />
@@ -298,7 +334,8 @@ const Checkout = () => {
                               )}
                             </div>
                             <p className="text-sm text-gray-600 mb-2 flex items-center gap-2">
-                              <Phone className="w-3.5 h-3.5 shrink-0" /> {addr.phone}
+                              <Phone className="w-3.5 h-3.5 shrink-0" />{" "}
+                              {addr.phone}
                             </p>
                             <p className="text-sm text-gray-500 flex-1 line-clamp-2 italic">
                               {addr.addressLine1}, {addr.city}
@@ -314,7 +351,9 @@ const Checkout = () => {
                     </div>
                   ) : (
                     <div className="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                      <p className="text-gray-500 mb-4">No shipping addresses found.</p>
+                      <p className="text-gray-500 mb-4">
+                        No shipping addresses found.
+                      </p>
                       <button
                         onClick={() => setIsAddingNewAddress(true)}
                         className="bg-red-600 text-white px-8 py-2.5 rounded-lg font-bold hover:bg-red-700 transition-all"
@@ -335,10 +374,11 @@ const Checkout = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label
-                  className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all ${deliveryOption === "normal"
-                    ? "border-red-500 bg-red-50/50 shadow-md ring-1 ring-red-500"
-                    : "border-gray-100 hover:border-gray-200 bg-white"
-                    }`}
+                  className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all ${
+                    deliveryOption === "normal"
+                      ? "border-red-500 bg-red-50/50 shadow-md ring-1 ring-red-500"
+                      : "border-gray-100 hover:border-gray-200 bg-white"
+                  }`}
                 >
                   <input
                     type="radio"
@@ -348,22 +388,29 @@ const Checkout = () => {
                     onChange={() => setDeliveryOption("normal")}
                   />
                   <div className="flex flex-col items-center">
-                    <div className={`w-5 h-5 rounded-full border-2 mb-3 flex items-center justify-center ${deliveryOption === "normal" ? "border-red-600 bg-red-600" : "border-gray-300"}`}>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 mb-3 flex items-center justify-center ${deliveryOption === "normal" ? "border-red-600 bg-red-600" : "border-gray-300"}`}
+                    >
                       <div className="w-2 h-2 rounded-full bg-white" />
                     </div>
-                    <span className="text-lg font-bold text-gray-900">৳120</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      ৳120
+                    </span>
                     <span className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">
                       Normal Delivery
                     </span>
-                    <p className="text-[10px] text-gray-400 mt-1 font-medium">Expected within 2-3 Days</p>
+                    <p className="text-[10px] text-gray-400 mt-1 font-medium">
+                      Expected within 2-3 Days
+                    </p>
                   </div>
                 </label>
 
                 <label
-                  className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all ${deliveryOption === "express"
-                    ? "border-red-500 bg-red-50/50 shadow-md ring-1 ring-red-500"
-                    : "border-gray-100 hover:border-gray-200 bg-white"
-                    }`}
+                  className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all ${
+                    deliveryOption === "express"
+                      ? "border-red-500 bg-red-50/50 shadow-md ring-1 ring-red-500"
+                      : "border-gray-100 hover:border-gray-200 bg-white"
+                  }`}
                 >
                   <input
                     type="radio"
@@ -373,14 +420,20 @@ const Checkout = () => {
                     onChange={() => setDeliveryOption("express")}
                   />
                   <div className="flex flex-col items-center">
-                    <div className={`w-5 h-5 rounded-full border-2 mb-3 flex items-center justify-center ${deliveryOption === "express" ? "border-red-600 bg-red-600" : "border-gray-300"}`}>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 mb-3 flex items-center justify-center ${deliveryOption === "express" ? "border-red-600 bg-red-600" : "border-gray-300"}`}
+                    >
                       <div className="w-2 h-2 rounded-full bg-white" />
                     </div>
-                    <span className="text-lg font-bold text-gray-900">৳180</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      ৳180
+                    </span>
                     <span className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">
                       Express Delivery
                     </span>
-                    <p className="text-[10px] text-gray-400 mt-1 font-medium">Expected within 12 Hours</p>
+                    <p className="text-[10px] text-gray-400 mt-1 font-medium">
+                      Expected within 12 Hours
+                    </p>
                   </div>
                 </label>
               </div>
@@ -423,9 +476,18 @@ const Checkout = () => {
                     >
                       <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-50 ring-1 ring-slate-100 shrink-0">
                         {imgUrl.startsWith("http") ? (
-                          <img src={imgUrl} alt={item.product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          <img
+                            src={imgUrl}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
                         ) : (
-                          <Image src={imgUrl} alt={item.product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                          <Image
+                            src={imgUrl}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
                         )}
                         <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-bl-lg">
                           {item.quantity}
@@ -453,7 +515,9 @@ const Checkout = () => {
               <div className="border-t border-gray-100 pt-6 mt-6 space-y-4">
                 <div className="flex justify-between text-sm font-medium text-slate-500">
                   <span>Subtotal</span>
-                  <span className="text-slate-900 font-bold">৳{subtotal.toLocaleString()}</span>
+                  <span className="text-slate-900 font-bold">
+                    ৳{subtotal.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm font-medium text-slate-500">
                   <div className="flex items-center gap-1">
@@ -466,11 +530,17 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-sm font-medium text-slate-500">
                   <span>Delivery Charge</span>
-                  <span className="text-slate-900 font-bold">৳{deliveryCharge}</span>
+                  <span className="text-slate-900 font-bold">
+                    ৳{deliveryCharge}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl mt-2 ring-1 ring-slate-100 shadow-inner">
-                  <span className="text-base font-bold text-gray-900">Total Payable</span>
-                  <span className="text-2xl font-black text-red-600">৳{totalAmount.toLocaleString()}</span>
+                  <span className="text-base font-bold text-gray-900">
+                    Total Payable
+                  </span>
+                  <span className="text-2xl font-black text-red-600">
+                    ৳{totalAmount.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -485,7 +555,9 @@ const Checkout = () => {
               </p>
 
               <div className="space-y-3">
-                <label className={`flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${paymentMethod === 'cod' ? 'border-red-500 bg-white ring-1 ring-red-500 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                <label
+                  className={`flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${paymentMethod === "cod" ? "border-red-500 bg-white ring-1 ring-red-500 shadow-md" : "border-slate-100 hover:border-slate-200"}`}
+                >
                   <input
                     type="radio"
                     name="payment"
@@ -496,7 +568,9 @@ const Checkout = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <Truck className="w-4 h-4 text-slate-700" />
-                      <span className="font-bold text-gray-900 uppercase tracking-tight">Cash on delivery</span>
+                      <span className="font-bold text-gray-900 uppercase tracking-tight">
+                        Cash on delivery
+                      </span>
                     </div>
                     <p className="text-[10px] text-gray-500 mt-1 font-medium leading-relaxed">
                       Pay with cash upon delivery of your items.
@@ -504,7 +578,9 @@ const Checkout = () => {
                   </div>
                 </label>
 
-                <label className={`flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${paymentMethod === 'stripe' ? 'border-red-500 bg-white ring-1 ring-red-500 shadow-md' : 'border-slate-100 hover:border-slate-200'}`}>
+                <label
+                  className={`flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${paymentMethod === "stripe" ? "border-red-500 bg-white ring-1 ring-red-500 shadow-md" : "border-slate-100 hover:border-slate-200"}`}
+                >
                   <input
                     type="radio"
                     name="payment"
@@ -515,7 +591,9 @@ const Checkout = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <CreditCard className="w-4 h-4 text-slate-700" />
-                      <span className="font-bold text-gray-900 uppercase tracking-tight">Online Payment (Card/Stripe)</span>
+                      <span className="font-bold text-gray-900 uppercase tracking-tight">
+                        Online Payment (Card/Stripe)
+                      </span>
                     </div>
                     <p className="text-[10px] text-gray-500 mt-1 font-medium leading-relaxed">
                       Pay securely with your credit or debit card via Stripe.
@@ -528,10 +606,16 @@ const Checkout = () => {
             {/* Confirm Order Button */}
             <button
               onClick={handlePlaceOrder}
-              disabled={isPlacingOrder || isCreatingSession || cartItems.length === 0}
+              disabled={
+                isPlacingOrder || isCreatingSession || cartItems.length === 0
+              }
               className="w-full bg-red-600 text-white py-4.5 rounded-xl text-lg font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-500/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-              {(isPlacingOrder || isCreatingSession) ? <Loader2 className="w-6 h-6 animate-spin" /> : "Confirm Order"}
+              {isPlacingOrder || isCreatingSession ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                "Confirm Order"
+              )}
             </button>
 
             {/* Policy Info */}
@@ -541,8 +625,12 @@ const Checkout = () => {
                   <Shield className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-gray-900 uppercase">Trusted Shopping</h4>
-                  <p className="text-[10px] text-gray-500 font-medium">Safe and Secure Transactions</p>
+                  <h4 className="text-xs font-black text-gray-900 uppercase">
+                    Trusted Shopping
+                  </h4>
+                  <p className="text-[10px] text-gray-500 font-medium">
+                    Safe and Secure Transactions
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-4 bg-white p-4 rounded-xl ring-1 ring-slate-100 shadow-sm">
@@ -550,8 +638,12 @@ const Checkout = () => {
                   <Truck className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-gray-900 uppercase">Free Returns</h4>
-                  <p className="text-[10px] text-gray-500 font-medium">Within 30 Days of Purchase</p>
+                  <h4 className="text-xs font-black text-gray-900 uppercase">
+                    Free Returns
+                  </h4>
+                  <p className="text-[10px] text-gray-500 font-medium">
+                    Within 30 Days of Purchase
+                  </p>
                 </div>
               </div>
             </div>
