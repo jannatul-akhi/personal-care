@@ -1,14 +1,40 @@
+"use client";
+
 import {
   Truck,
   Headphones,
   ShieldCheck,
   Award,
   ShoppingCart,
-  ArrowRight,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useGetCartCountQuery, useGetCartQuery } from "@/redux/api/cart/cartApi";
 
 export function FeatureBanner() {
+  const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
+  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
+
+  // Fetch count and cart total
+  const { data: cartCountData } = useGetCartCountQuery(
+    { isLoggedIn, guestCartId }
+  );
+
+  const { data: cartData } = useGetCartQuery(
+    { isLoggedIn, guestCartId },
+    { skip: !isLoggedIn && !guestCartId }
+  );
+
+  const cartCount = cartCountData?.data?.count ?? 0;
+
+  // Calculate total from cartData items
+  const subtotal = cartData?.data?.items?.reduce((sum: number, item: any) => {
+    const price = item.product.discountPrice > 0 ? item.product.discountPrice : item.product.price;
+    return sum + (price * item.quantity);
+  }, 0) ?? 0;
+
   const features = [
     {
       icon: Truck,
@@ -51,11 +77,10 @@ export function FeatureBanner() {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`flex items-center gap-6 py-3 ${
-                  index !== features.length - 1
-                    ? "border-b border-gray-100"
-                    : ""
-                }`}
+                className={`flex items-center gap-6 py-3 ${index !== features.length - 1
+                  ? "border-b border-gray-100"
+                  : ""
+                  }`}
               >
                 <div className="w-14 h-14 bg-[#4a6741] rounded-full flex items-center justify-center flex-shrink-0 shadow-lg group">
                   <feature.icon className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
@@ -84,18 +109,29 @@ export function FeatureBanner() {
         </div>
 
         {/* Floating Cart Information - Vertical Pill Stick to Right */}
-        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50">
-          <div className="bg-white shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-l-2xl overflow-hidden border-y border-l border-gray-100">
-            <div className="bg-[#4a6741] p-4 text-white flex flex-col items-center gap-1 cursor-pointer hover:bg-[#3d5435] transition-colors min-w-[85px]">
-              <div className="relative">
-                <ShoppingCart className="w-7 h-7 " />
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[9999]">
+          <Link href="/cart" className="block transform transition-transform hover:-translate-x-1 active:scale-95 duration-300">
+            <div className="bg-white shadow-[0_10px_40px_rgba(0,0,0,0.15)] rounded-l-2xl overflow-hidden border-y border-l border-gray-100">
+              <div className="bg-[#4a6741] p-4 text-white flex flex-col items-center gap-1 cursor-pointer hover:bg-[#3d5435] transition-colors min-w-[95px]">
+                <div className="relative">
+                  <ShoppingCart className="w-7 h-7 " />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center ring-2 ring-[#4a6741]">
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[12px] font-bold mt-1 whitespace-nowrap">
+                  {cartCount} {cartCount > 1 ? "Items" : "Item"}
+                </span>
               </div>
-              <span className="text-[13px] font-bold mt-1">5 Items</span>
+              <div className="p-3 text-center bg-white border-t border-gray-50">
+                <p className="text-[#4a6741] font-black text-[15px] tracking-tight">
+                  ৳ {subtotal.toLocaleString()}
+                </p>
+              </div>
             </div>
-            <div className="p-3 text-center bg-white">
-              <p className="text-[#4a6741] font-black text-[15px]">৳ 5,640</p>
-            </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>

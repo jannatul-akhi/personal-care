@@ -3,17 +3,19 @@
 import PrimaryButton from "@/components/shared/primaryButton/PrimaryButton";
 import Container from "@/lib/Container";
 import { useSignInMutation } from "@/redux/api/auth/authApi";
+import { useMergeCartMutation } from "@/redux/api/cart/cartApi";
+import { resetGuestCart } from "@/redux/features/cart/cartSlice";
 import { setUser } from "@/redux/features/user/userSlice";
 import CustomInput from "@/ui/CustomeInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import * as z from "zod";
+import { RootState } from "@/redux/store";
 
 // Define Zod schema for validation
 const formSchema = z.object({
@@ -46,32 +48,49 @@ export default function SignInPage() {
   });
 
   const [signIn, { isLoading }] = useSignInMutation();
+  const [mergeCart] = useMergeCartMutation();
 
   const router = useRouter();
   const dispatch = useDispatch();
+
+  // Guest cart ID — merge into user cart after login
+  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
 
   const onSubmit = async (data: FormValues) => {
     try {
       const response = await signIn(data).unwrap();
       if (response?.success) {
-        if (response.data.verify) {
-          Cookies.set("token", response.data.accessToken);
-          dispatch(
-            setUser({
-              token: response.data.accessToken,
-            })
-          );
-          toast.success("Login successful");
-          router.push("/");
-        } else {
-          router.push("/otp");
+        const token = response.data.token;
+        const user = response.data.user;
+
+        Cookies.set("auth_token", token);
+        dispatch(
+          setUser({
+            token: token,
+            user: user,
+          })
+        );
+
+        // Merge guest cart into user cart (if there was a guest session)
+        if (guestCartId) {
+          try {
+            await mergeCart({ guestCartId }).unwrap();
+            // Reset guest cart session after successful merge
+            dispatch(resetGuestCart());
+          } catch (err) {
+            console.error("Cart merge failed:", err);
+          }
         }
+
+        toast.success(response.message || "Login successful");
+        router.push("/");
       }
     } catch (error: any) {
       console.log("Error during sign-in:", error);
       return toast.error(error?.data?.message || "Login failed");
     }
   };
+
 
   return (
     <Container>

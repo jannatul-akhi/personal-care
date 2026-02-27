@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
   // Get token from cookies
-  const token = request.cookies.get("accessToken")?.value;
+  const token = request.cookies.get("auth_token")?.value;
   if (!token) {
     // Redirect to home if no token is present
     return NextResponse.redirect(new URL("/", request.url));

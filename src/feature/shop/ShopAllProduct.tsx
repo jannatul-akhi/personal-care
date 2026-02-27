@@ -4,8 +4,12 @@ import { useState } from "react";
 import { ShoppingCart, ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
 import { useGetAllProductsQuery } from "@/redux/api/product/productApi";
+import { useAddToCartMutation } from "@/redux/api/cart/cartApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { Product, Pagination } from "@/interfaces/product";
 import PaginationComponent from "@/components/shared/pagination/Pagination";
+import { toast } from "sonner";
 
 const PLACEHOLDER_IMAGE = "/images/hero1.png";
 
@@ -14,9 +18,27 @@ export function ShopAllProduct() {
   const limit = 12;
 
   const { data, isLoading, isError } = useGetAllProductsQuery({ page, limit });
-
   const products: Product[] = data?.data || [];
   const pagination: Pagination | undefined = data?.meta?.pagination;
+
+  const [addToCart] = useAddToCartMutation();
+  const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
+  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
+
+  const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    try {
+      const payload: { productId: string; quantity: number; guestCartId?: string } = {
+        productId: product.id,
+        quantity: 1,
+      };
+      if (guestCartId) payload.guestCartId = guestCartId;
+      await addToCart(payload).unwrap();
+      toast.success(`${product.name} added to cart!`);
+    } catch {
+      toast.error("Failed to add to cart.");
+    }
+  };
 
   return (
     <section className="py-12 bg-white">
@@ -71,8 +93,8 @@ export function ShopAllProduct() {
                     ? product.avgRating.toFixed(1)
                     : product._count.reviews > 0
                       ? Math.min(5, 4 + product._count.reviews * 0.05).toFixed(
-                          1,
-                        )
+                        1,
+                      )
                       : null;
 
                 const stockLabel =
@@ -134,10 +156,7 @@ export function ShopAllProduct() {
                       {product.stock > 0 && (
                         <div className="absolute bottom-4 left-0 right-0 px-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
                           <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              // add to cart logic
-                            }}
+                            onClick={(e) => handleAddToCart(e, product)}
                             className="flex-1 bg-[#4a6741] text-white py-2 px-3 rounded-full text-[10px] font-bold flex items-center justify-center gap-1 hover:bg-[#3d5435] transition-colors whitespace-nowrap"
                           >
                             <ShoppingCart className="w-3.5 h-3.5" /> Add to Cart

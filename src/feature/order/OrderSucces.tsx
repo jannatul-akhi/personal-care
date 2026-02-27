@@ -1,55 +1,54 @@
-import React from "react";
-import {
-  ChevronRight,
-  Printer,
-  PartyPopper,
-  UtensilsCrossed,
-} from "lucide-react";
-import Link from "next/link";
+"use client";
 
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  quantity: number;
-  color: string;
-  size: string;
-  price: string;
-}
+import React, { useEffect } from "react";
+import { ChevronRight, Printer, PartyPopper, UtensilsCrossed, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useGetMyOrdersQuery } from "@/redux/api/order/orderApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+const PLACEHOLDER = "/images/hero1.png";
 
 const OrderSucces: React.FC = () => {
-  const products: Product[] = [
-    {
-      id: "1",
-      name: "New York Yankees Essential Black Cap",
-      image:
-        "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&q=80&w=200&h=200",
-      quantity: 2,
-      color: "Brown",
-      size: "Free Size",
-      price: "৳28,846",
-    },
-    {
-      id: "2",
-      name: "New York Yankees Essential Black Cap",
-      image:
-        "https://images.unsplash.com/photo-1602143407151-011141920e4b?auto=format&fit=crop&q=80&w=200&h=200",
-      quantity: 2,
-      color: "Brown",
-      size: "Free Size",
-      price: "৳28,846",
-    },
-    {
-      id: "3",
-      name: "New York Yankees Essential Black Cap",
-      image:
-        "https://images.unsplash.com/photo-1610443178009-6617631cc11a?auto=format&fit=crop&q=80&w=200&h=200",
-      quantity: 2,
-      color: "Brown",
-      size: "Free Size",
-      price: "৳28,846",
-    },
-  ];
+  const router = useRouter();
+  const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+  }, [isLoggedIn, router]);
+
+  const { data: orderData, isLoading } = useGetMyOrdersQuery(undefined, {
+    skip: !isLoggedIn,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+      </div>
+    );
+  }
+
+  const latestOrder = orderData?.data?.[0];
+
+  if (!latestOrder) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900">No Orders Found</h2>
+        <Link href="/" className="bg-red-600 px-8 py-3 text-sm font-bold text-white rounded-sm">
+          Go Shopping
+        </Link>
+      </div>
+    );
+  }
+
+  // Safely extract properties
+  const { orderNumber, items, totalAmount, discountAmount, shippingAmount, grandTotal, createdAt, address, payment, paymentMethod } = latestOrder as any;
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800">
@@ -71,13 +70,8 @@ const OrderSucces: React.FC = () => {
             <div className="text-red-500 transform -rotate-12">
               <PartyPopper size={64} strokeWidth={1.5} />
             </div>
-            {/* Simple decorative dots/confetti */}
-            <div className="absolute top-0 right-0 -mt-2 -mr-4 text-red-400 text-xs">
-              .
-            </div>
-            <div className="absolute bottom-0 left-0 -mb-2 -ml-4 text-blue-400 text-xs">
-              .
-            </div>
+            <div className="absolute top-0 right-0 -mt-2 -mr-4 text-red-400 text-xs">.</div>
+            <div className="absolute bottom-0 left-0 -mb-2 -ml-4 text-blue-400 text-xs">.</div>
           </div>
 
           <h1 className="mb-3 text-3xl font-bold text-gray-900">
@@ -116,7 +110,6 @@ const OrderSucces: React.FC = () => {
           <div className="bg-red-50/50 p-8 flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                {/* Logo Icon - Using UtensilsCrossed for a kitchen feel */}
                 <div className="text-red-500 transform -rotate-45">
                   <UtensilsCrossed size={24} strokeWidth={2.5} />
                 </div>
@@ -125,8 +118,8 @@ const OrderSucces: React.FC = () => {
                 </span>
               </div>
               <div className="text-xs text-gray-500 space-y-1">
-                <p>House# 8/10 Block-C, Rarihari,</p>
-                <p>Savar, Dhaka, Savar, Bangladesh</p>
+                <p>Premium Store For Personal Care,</p>
+                <p>Dhaka, Bangladesh</p>
               </div>
             </div>
 
@@ -140,68 +133,62 @@ const OrderSucces: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between mb-8 gap-6">
               <div>
                 <h3 className="text-sm font-bold text-gray-900 mb-1">
-                  Didarul Islam
+                  {address?.fullName || "Guest User"}
                 </h3>
                 <p className="text-xs text-gray-500 mb-2">
-                  +8801738 552 616, info@info.com
+                  {address?.phone}
                 </p>
                 <p className="text-xs text-gray-500 max-w-[250px] leading-relaxed">
-                  Tropical Akhand Tower, House 23, Gareeb-e-Newaz Ave, Dhaka
-                  1230, Uttara Sector 11, Dhaka - North, Dhaka
+                  {address?.addressLine1}, {address?.addressLine2 ? `${address.addressLine2}, ` : ""}{address?.city}, {address?.country}
                 </p>
               </div>
               <div className="md:text-right">
                 <h3 className="text-sm font-bold text-gray-900 mb-1">
-                  Order id: #253614
+                  {orderNumber}
                 </h3>
-                <p className="text-xs text-gray-500">Date: 25 June, 2026</p>
+                <p className="text-xs text-gray-500">Date: {new Date(createdAt).toLocaleDateString()}</p>
               </div>
             </div>
 
-            <h4 className="text-sm font-bold text-gray-900 mb-6">
-              Ordered Item
+            <h4 className="text-sm font-bold text-gray-900 mb-6 flex justify-between">
+              <span>Ordered Items</span>
+              <span className="uppercase text-[10px] tracking-widest text-gray-500">{paymentMethod} / {payment?.status || "PENDING"}</span>
             </h4>
 
             {/* Items List */}
             <div className="space-y-6 mb-8">
-              {products.map((product) => (
-                <div key={product.id} className="flex gap-4 items-start">
-                  <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start">
-                      <h5 className="text-sm font-bold text-gray-900 max-w-[200px]">
-                        {product.name}
-                      </h5>
-                      <span className="text-sm font-bold text-gray-900">
-                        {product.price}
-                      </span>
+              {items?.map((item: any) => {
+                const imgUrl = item.product?.featuredImage || PLACEHOLDER;
+                return (
+                  <div key={item.id} className="flex gap-4 items-start">
+                    <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0 relative">
+                      {imgUrl.startsWith("http") ? (
+                        <img src={imgUrl} alt={item.product?.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Image src={imgUrl} alt={item.product?.name} fill className="object-cover" />
+                      )}
                     </div>
-                    <p className="text-xs font-bold text-gray-900 mt-1">
-                      X {product.quantity}
-                    </p>
-                    <div className="flex gap-4 mt-1">
-                      <p className="text-xs text-gray-500">
-                        Color:{" "}
-                        <span className="text-gray-500 font-medium">
-                          {product.color}
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start">
+                        <h5 className="text-sm font-bold text-gray-900 max-w-[200px]">
+                          {item.product?.name}
+                        </h5>
+                        <span className="text-sm font-bold text-gray-900">
+                          ৳{(item.price - (item.discount || 0)).toLocaleString()}
                         </span>
+                      </div>
+                      <p className="text-xs font-bold text-gray-900 mt-1">
+                        X {item.quantity}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        Size:{" "}
-                        <span className="text-gray-500 font-medium">
-                          {product.size}
-                        </span>
-                      </p>
+                      <div className="flex gap-4 mt-1">
+                        <p className="text-[10px] text-gray-500 italic">
+                          SKU: {item.product?.sku || 'N/A'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Totals Section */}
@@ -210,38 +197,52 @@ const OrderSucces: React.FC = () => {
                 <div className="w-full max-w-xs space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-gray-500">Subtotal</span>
-                    <span className="font-bold text-gray-900">৳2,500</span>
+                    <span className="font-bold text-gray-900">৳{totalAmount?.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-gray-500">
                       Coupon Discount
                     </span>
-                    <span className="font-bold text-gray-900">৳2,500</span>
+                    <span className="font-bold text-gray-900">৳{discountAmount?.toLocaleString() || 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-gray-500">
                       Delivery Charge
                     </span>
-                    <span className="font-bold text-gray-900">৳120</span>
+                    <span className="font-bold text-gray-900">৳{shippingAmount?.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm pt-2 border-t border-gray-50 mt-2">
                     <span className="font-bold text-gray-900">
                       Total Amount
                     </span>
-                    <span className="font-bold text-gray-900">৳2,500</span>
+                    <span className="font-bold text-gray-900">৳{grandTotal?.toLocaleString()}</span>
                   </div>
+
+                  {payment && (
+                    <div className="flex justify-between text-xs pt-2 mt-2">
+                      <span className="font-medium text-gray-500">
+                        Amount Paid ({payment.paymentGateway || paymentMethod})
+                      </span>
+                      <span className="font-bold text-green-600">৳{payment.amount?.toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Note */}
             <div className="mt-8 pt-6 border-t border-dashed border-gray-200">
-              <h4 className="text-sm font-bold text-gray-900 mb-2">Note:</h4>
+              <h4 className="text-sm font-bold text-gray-900 mb-2">Payment Note:</h4>
               <p className="text-xs text-gray-500 leading-relaxed">
-                A top-rated choice for many kitchens, this model uses smart
-                fuzzy logic technology to adjust cooking time and temperature
-                automatically for perfectly cooked rice every time.
+                {paymentMethod === "stripe"
+                  ? "Thank you for paying online using Stripe. Your payment has been successfully recorded."
+                  : "You have selected Cash on Delivery. Please keep the exact amount ready when your package arrives."}
               </p>
+              {payment?.transactionId && (
+                <p className="text-[10px] text-gray-400 mt-2 font-mono">
+                  Transaction ID: {payment.transactionId}
+                </p>
+              )}
             </div>
           </div>
         </div>

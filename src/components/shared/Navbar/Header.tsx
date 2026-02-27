@@ -36,11 +36,10 @@ export function Header() {
 
   const isLoggedIn = !!(user || token);
 
-  // login থাকলে → auth header দিয়ে count (guestCartId পাঠাব না)
-  // login না থাকলে → guestCartId query param দিয়ে count
+  // login থাকলে → auth header দিয়ে count
+  // login না থাকলে → guestCartId query param  // Fetch count and cart total
   const { data: cartCountData } = useGetCartCountQuery(
-    isLoggedIn ? { isLoggedIn: true } : { isLoggedIn: false, guestCartId },
-    { pollingInterval: 15000 },
+    { isLoggedIn, guestCartId }
   );
 
   const cartCount = cartCountData?.data?.count ?? 0;

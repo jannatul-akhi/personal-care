@@ -3,14 +3,36 @@
 import { ShoppingCart, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useGetTopRatedProductsQuery } from "@/redux/api/product/productApi";
+import { useAddToCartMutation } from "@/redux/api/cart/cartApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { Product } from "@/interfaces/product";
+import { toast } from "sonner";
 
 const PLACEHOLDER_IMAGE = "/images/hero1.png";
 
 export function TopRatedProducts() {
-  const { data, isLoading, isError } = useGetTopRatedProductsQuery({});
-
+  const { data, isLoading, isError } = useGetTopRatedProductsQuery(undefined);
   const products: Product[] = data?.data || [];
+
+  const [addToCart] = useAddToCartMutation();
+  const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
+  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
+
+  const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    try {
+      const payload: { productId: string; quantity: number; guestCartId?: string } = {
+        productId: product.id,
+        quantity: 1,
+      };
+      if (guestCartId) payload.guestCartId = guestCartId;
+      await addToCart(payload).unwrap();
+      toast.success(`${product.name} added to cart!`);
+    } catch {
+      toast.error("Failed to add to cart.");
+    }
+  };
 
   return (
     <section className="py-16 bg-white">
@@ -124,10 +146,7 @@ export function TopRatedProducts() {
                     {product.stock > 0 && (
                       <div className="absolute bottom-4 left-0 right-0 px-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
                         <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // add to cart logic
-                          }}
+                          onClick={(e) => handleAddToCart(e, product)}
                           className="bg-[#4a6741] text-white py-2 px-3 rounded-full text-[10px] font-medium flex items-center justify-center gap-1 hover:bg-[#3d5435] transition-colors whitespace-nowrap"
                         >
                           <ShoppingCart className="w-3 h-3" /> Add to Cart

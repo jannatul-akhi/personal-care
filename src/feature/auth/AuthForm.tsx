@@ -7,7 +7,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useSignInMutation, useSignUpMutation } from "@/redux/api/auth/authApi";
-import { useDispatch } from "react-redux";
+import { useMergeCartMutation } from "@/redux/api/cart/cartApi";
+import { resetGuestCart } from "@/redux/features/cart/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { setUser } from "@/redux/features/user/userSlice";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
@@ -43,6 +46,10 @@ const AuthForm = () => {
   // RTK Query hooks
   const [signIn, { isLoading: isLoggingIn }] = useSignInMutation();
   const [signUp, { isLoading: isRegistering }] = useSignUpMutation();
+  const [mergeCart] = useMergeCartMutation();
+
+  // Guest cart ID
+  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
 
   // Forms
   const {
@@ -71,6 +78,17 @@ const AuthForm = () => {
         });
         dispatch(setUser(response));
 
+        // Merge guest cart into user cart (if there was a guest session)
+        if (guestCartId) {
+          try {
+            await mergeCart({ guestCartId }).unwrap();
+            // Reset guest cart session after successful merge
+            dispatch(resetGuestCart());
+          } catch (mergeError) {
+            console.error("Cart merge failed:", mergeError);
+          }
+        }
+
         toast.success("Login successful");
         router.push("/");
       }
@@ -83,14 +101,28 @@ const AuthForm = () => {
 
   const onRegisterSubmit = async (data: RegisterValues) => {
     try {
-      const { confirmPassword, ...payload } = data;
-      const response = await signUp(payload).unwrap();
+      const response = await signUp(data).unwrap();
       if (response?.success) {
         toast.success(response.message || "Registration successful");
-        if (response.data.requiresVerification) {
-          router.push("/otp");
+
+        // Auto-login logic
+        if (response.data?.token && response.data?.user) {
+          Cookies.set("auth_token", response.data.token);
+          dispatch(setUser(response));
+
+          // Merge guest cart if exists
+          if (guestCartId) {
+            try {
+              await mergeCart({ guestCartId }).unwrap();
+              dispatch(resetGuestCart());
+            } catch (mergeError) {
+              console.error("Cart merge during registration failed:", mergeError);
+            }
+          }
+
+          router.push("/");
         } else {
-          setIsLogin(true); // Switch to login
+          setIsLogin(true); // Switch to login as fallback
         }
       }
     } catch (error: any) {
@@ -108,21 +140,19 @@ const AuthForm = () => {
           <div className="bg-gray-100 rounded-full p-1 flex">
             <button
               onClick={() => setIsLogin(true)}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
-                isLogin
-                  ? "bg-white text-green-700 shadow-sm"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${isLogin
+                ? "bg-white text-green-700 shadow-sm"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               Log in
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
-                !isLogin
-                  ? "bg-white text-green-700 shadow-sm"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${!isLogin
+                ? "bg-white text-green-700 shadow-sm"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               Register
             </button>
@@ -164,11 +194,10 @@ const AuthForm = () => {
                   {...loginRegister("identifier")}
                   type="text"
                   placeholder="E-mail or Phone Number"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    loginErrors.identifier
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${loginErrors.identifier
+                    ? "border-red-500"
+                    : "border-gray-300"
+                    }`}
                 />
                 {loginErrors.identifier && (
                   <p className="text-red-500 text-xs mt-1">
@@ -182,9 +211,8 @@ const AuthForm = () => {
                   {...loginRegister("password")}
                   type="password"
                   placeholder="Password"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    loginErrors.password ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${loginErrors.password ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {loginErrors.password && (
                   <p className="text-red-500 text-xs mt-1">
@@ -249,9 +277,8 @@ const AuthForm = () => {
                   {...registerFormRegister("name")}
                   type="text"
                   placeholder="Name"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    registerErrors.name ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.name ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {registerErrors.name && (
                   <p className="text-red-500 text-xs mt-1">
@@ -265,9 +292,8 @@ const AuthForm = () => {
                   {...registerFormRegister("phone")}
                   type="tel"
                   placeholder="Phone Number"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    registerErrors.phone ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.phone ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {registerErrors.phone && (
                   <p className="text-red-500 text-xs mt-1">
@@ -281,9 +307,8 @@ const AuthForm = () => {
                   {...registerFormRegister("email")}
                   type="email"
                   placeholder="Email Address"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    registerErrors.email ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.email ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {registerErrors.email && (
                   <p className="text-red-500 text-xs mt-1">
@@ -297,11 +322,10 @@ const AuthForm = () => {
                   {...registerFormRegister("password")}
                   type="password"
                   placeholder="Password"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    registerErrors.password
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.password
+                    ? "border-red-500"
+                    : "border-gray-300"
+                    }`}
                 />
                 {registerErrors.password && (
                   <p className="text-red-500 text-xs mt-1">
@@ -315,11 +339,10 @@ const AuthForm = () => {
                   {...registerFormRegister("confirmPassword")}
                   type="password"
                   placeholder="Confirm Password"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    registerErrors.confirmPassword
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${registerErrors.confirmPassword
+                    ? "border-red-500"
+                    : "border-gray-300"
+                    }`}
                 />
                 {registerErrors.confirmPassword && (
                   <p className="text-red-500 text-xs mt-1">

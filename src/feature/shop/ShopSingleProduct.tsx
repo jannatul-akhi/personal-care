@@ -60,15 +60,15 @@ export function ShopSingleProduct() {
         productId: product.id,
         quantity,
       };
-      if (!isLoggedIn) {
-        payload.guestCartId = guestCartId;
-      }
+      // Only add guestCartId if guest AND it exists (valid UUID)
+      if (guestCartId) payload.guestCartId = guestCartId;
       await addToCart(payload).unwrap();
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       toast.error("Failed to add to cart. Please try again.");
     }
   };
+
 
   const toggleAccordion = (accordionId: string) => {
     setActiveAccordion(activeAccordion === accordionId ? null : accordionId);
@@ -77,9 +77,9 @@ export function ShopSingleProduct() {
   // Build image list — featuredImage first, then images array
   const productImages = product
     ? [
-        product.featuredImage || PLACEHOLDER_IMAGE,
-        ...(product.images || []),
-      ].filter(Boolean)
+      product.featuredImage || PLACEHOLDER_IMAGE,
+      ...(product.images || []),
+    ].filter(Boolean)
     : [PLACEHOLDER_IMAGE, "/images/skin1.png", "/images/skin2.png"];
 
   // Prices
@@ -204,11 +204,10 @@ export function ShopSingleProduct() {
               <button
                 key={idx}
                 onClick={() => setActiveImage(idx)}
-                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                  activeImage === idx
-                    ? "border-[#4a6741]"
-                    : "border-transparent opacity-60 hover:opacity-100"
-                }`}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${activeImage === idx
+                  ? "border-[#4a6741]"
+                  : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
               >
                 {img?.startsWith("http") ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -252,11 +251,10 @@ export function ShopSingleProduct() {
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-4 h-4 ${
-                      avgRating && i < Math.round(Number(avgRating))
-                        ? "fill-[#FBBC05] text-[#FBBC05]"
-                        : "fill-gray-200 text-gray-200"
-                    }`}
+                    className={`w-4 h-4 ${avgRating && i < Math.round(Number(avgRating))
+                      ? "fill-[#FBBC05] text-[#FBBC05]"
+                      : "fill-gray-200 text-gray-200"
+                      }`}
                   />
                 ))}
                 {avgRating && (
@@ -458,9 +456,8 @@ export function ShopSingleProduct() {
             {/* Stock indicator */}
             <div className="flex items-center gap-2 text-[12px] mb-4">
               <div
-                className={`w-2 h-2 rounded-full ${
-                  inStock ? "bg-green-500" : "bg-red-500"
-                }`}
+                className={`w-2 h-2 rounded-full ${inStock ? "bg-green-500" : "bg-red-500"
+                  }`}
               />
               <span className={inStock ? "text-green-600" : "text-red-500"}>
                 {inStock ? `${stockCount} in stock` : "Out of stock"}
@@ -555,11 +552,10 @@ export function ShopSingleProduct() {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-5 h-5 ${
-                        avgRating && i < Math.round(Number(avgRating))
-                          ? "fill-[#FBBC05] text-[#FBBC05]"
-                          : "fill-gray-200 text-gray-200"
-                      }`}
+                      className={`w-5 h-5 ${avgRating && i < Math.round(Number(avgRating))
+                        ? "fill-[#FBBC05] text-[#FBBC05]"
+                        : "fill-gray-200 text-gray-200"
+                        }`}
                     />
                   ))}
                   <span className="text-sm text-gray-400 ml-2">
@@ -663,11 +659,10 @@ export function ShopSingleProduct() {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${
-                                  i < review.rating
-                                    ? "fill-[#FBBC05] text-[#FBBC05]"
-                                    : "fill-gray-200 text-gray-200"
-                                }`}
+                                className={`w-3 h-3 ${i < review.rating
+                                  ? "fill-[#FBBC05] text-[#FBBC05]"
+                                  : "fill-gray-200 text-gray-200"
+                                  }`}
                               />
                             ))}
                             <span className="text-[11px] text-gray-400 font-bold ml-1">

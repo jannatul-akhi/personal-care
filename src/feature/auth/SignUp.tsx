@@ -2,11 +2,17 @@
 "use client";
 import PrimaryButton from "@/components/shared/primaryButton/PrimaryButton";
 import { useSignUpMutation } from "@/redux/api/auth/authApi";
+import { useMergeCartMutation } from "@/redux/api/cart/cartApi";
+import { resetGuestCart } from "@/redux/features/cart/cartSlice";
+import { setUser } from "@/redux/features/user/userSlice";
+import { RootState } from "@/redux/store";
 import CustomInput from "@/ui/CustomeInput";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -36,6 +42,9 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function SignUpPage() {
   const [signUp, { isLoading }] = useSignUpMutation();
+  const [mergeCart] = useMergeCartMutation();
+  const dispatch = useDispatch();
+  const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
   const router = useRouter();
 
   // Use React Hook Form with Zod resolver
@@ -58,19 +67,36 @@ export default function SignUpPage() {
     localStorage.setItem("email", data.email);
     console.log("Form Data:", data);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, ...rest } = data;
-
     // Add role to the payload
     const payload = {
-      ...rest,
+      ...data,
       role: "INDIVIDUAL",
     };
 
     try {
       const response = await signUp(payload).unwrap();
       if (response?.success) {
-        router.push("/otp");
+        toast.success(response.message || "Registration successful");
+
+        // Auto-login logic
+        if (response.data?.token && response.data?.user) {
+          Cookies.set("auth_token", response.data.token);
+          dispatch(setUser(response));
+
+          // Merge guest cart if exists
+          if (guestCartId) {
+            try {
+              await mergeCart({ guestCartId }).unwrap();
+              dispatch(resetGuestCart());
+            } catch (mergeError) {
+              console.error("Cart merge during registration failed:", mergeError);
+            }
+          }
+
+          router.push("/");
+        } else {
+          router.push("/login");
+        }
       }
     } catch (error: any) {
       console.error("Error during sign up:", error);
