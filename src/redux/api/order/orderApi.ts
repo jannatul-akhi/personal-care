@@ -16,7 +16,7 @@ export interface OrderItem {
     productId: string;
     quantity: number;
     price: number;
-    product: { name: string; featuredImage: string | null };
+    product: { name: string; featuredImage: string | null; storage?: string; color?: string };
 }
 
 export interface Order {
@@ -26,10 +26,13 @@ export interface Order {
     paymentStatus: string;
     paymentMethod: string;
     deliveryOption: string;
-    subtotal: number;
-    deliveryCharge: number;
-    discount: number;
-    total: number;
+    totalAmount: number;
+    shippingAmount: number;
+    discountAmount: number;
+    grandTotal: number;
+    taxAmount?: number;
+    shippingAddress: any;
+    billingAddress: any;
     notes?: string;
     items: OrderItem[];
     createdAt: string;
@@ -54,6 +57,18 @@ export const orderApi = baseApi.injectEndpoints({
             query: (id) => ({ url: `/orders/${id}`, method: "GET" }),
             providesTags: ["Order"],
         }),
+
+        // GET /api/orders/status — filter by status
+        getMyOrdersByStatus: builder.query<{ success: boolean; data: Order[] }, { status: string }>({
+            query: ({ status }) => ({ url: "/orders/status", method: "GET", params: { status } }),
+            providesTags: ["Order"],
+        }),
+
+        // PATCH /api/orders/:id/cancel
+        cancelOrder: builder.mutation<{ success: boolean; message: string; data: Order }, string>({
+            query: (id) => ({ url: `/orders/${id}/cancel`, method: "PATCH" }),
+            invalidatesTags: ["Order"],
+        }),
     }),
 });
 
@@ -61,4 +76,6 @@ export const {
     usePlaceOrderMutation,
     useGetMyOrdersQuery,
     useGetOrderDetailsQuery,
+    useGetMyOrdersByStatusQuery,
+    useCancelOrderMutation,
 } = orderApi;

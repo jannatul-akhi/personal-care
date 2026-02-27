@@ -1,10 +1,11 @@
 "use client";
 
-import { ShoppingCart, Star, ArrowRight } from "lucide-react";
+import { ShoppingCart, Star, ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetFeaturedProductsQuery } from "@/redux/api/product/productApi";
 import { useAddToCartMutation } from "@/redux/api/cart/cartApi";
+import { useAddToWishlistMutation } from "@/redux/api/wishlist/wishlistApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { Product } from "@/interfaces/product";
@@ -18,6 +19,7 @@ export function BestSellingProducts() {
   const products: Product[] = data?.data || [];
 
   const [addToCart] = useAddToCartMutation();
+  const [addToWishlist] = useAddToWishlistMutation();
   const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
   const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
 
@@ -33,6 +35,20 @@ export function BestSellingProducts() {
       toast.success(`${product.name} added to cart!`);
     } catch {
       toast.error("Failed to add to cart.");
+    }
+  };
+
+  const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
+    e.preventDefault();
+    if (!isLoggedIn) {
+      toast.error("Please login to add to wishlist.");
+      return;
+    }
+    try {
+      await addToWishlist(productId).unwrap();
+      toast.success("Added to wishlist!");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to add to wishlist.");
     }
   };
 
@@ -123,6 +139,15 @@ export function BestSellingProducts() {
                         NEW!
                       </div>
                     )}
+
+                    {/* Wishlist Button */}
+                    <button
+                      onClick={(e) => handleAddToWishlist(e, product.id)}
+                      className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 text-gray-400 hover:text-red-500 hover:bg-white transition-all duration-300 shadow-sm opacity-0 group-hover:opacity-100"
+                      title="Add to Wishlist"
+                    >
+                      <Heart className="w-3.5 h-3.5" />
+                    </button>
 
                     {/* Out of stock overlay */}
                     {product.stock === 0 && (

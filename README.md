@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Care App - Frontend
 
-## Getting Started
+The consumer-facing landing page and storefront for the Personal Care application, built with Next.js 15.
 
-First, run the development server:
+## 🚀 Tech Stack
 
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Library**: [React 19](https://react.dev/)
+- **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/) with [RTK Query](https://redux-toolkit.js.org/rtk-query/overview)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/) & [React Icons](https://react-icons.github.io/react-icons/)
+- **Validation**: [Zod](https://zod.dev/) & [React Hook Form](https://react-hook-form.com/)
+
+## 🛠️ Features
+
+- **Modern UI**: Clean, responsive design with smooth animations using Framer Motion.
+- **Product Catalog**: Paginated product list with advanced filtering (Category, Price, Rating).
+- **Cart Management**: Persistent shopping cart with guest support and post-login merging.
+- **User Auth**: Secure registration and login flow integrated with the backend.
+- **Checkout Flow**: Seamless integration with Stripe for secure payments.
+- **Toasts**: Beautiful notifications using Sonner and React Hot Toast.
+
+## 🏁 Getting Started
+
+### Installation
+
+1. Install dependencies:
+   ```bash
+   bun install
+   ```
+
+2. Setup environment variables:
+   Create a `.env` file with the following:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3030/api
+   ```
+
+### Development
+
+Start the development server with Turbopack:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Build and start the production app:
+```bash
+bun run build
+bun run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Architecture
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app/`: Next.js App Router pages and layouts.
+- `src/feature/`: Modularized feature components and logic.
+- `src/redux/`: Redux store, slices, and RTK Query API definitions.
+- `src/components/`: Reusable UI core components.

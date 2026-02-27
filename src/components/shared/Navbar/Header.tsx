@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { logout } from "@/redux/features/user/userSlice";
+import { useGetWishlistQuery } from "@/redux/api/wishlist/wishlistApi";
 import { useGetCartCountQuery } from "@/redux/api/cart/cartApi";
 import { RootState } from "@/redux/store";
 
@@ -42,6 +43,12 @@ export function Header() {
     isLoggedIn,
     guestCartId,
   });
+
+  // Wishlist count
+  const { data: wishlistData } = useGetWishlistQuery(undefined, {
+    skip: !isLoggedIn,
+  });
+  const wishlistCount = wishlistData?.data?.items?.length ?? 0;
 
   const cartCount = cartCountData?.data?.count ?? 0;
 
@@ -142,9 +149,17 @@ export function Header() {
               </div>
 
               {/* Wishlist */}
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <Link
+                href="/dashboard/wishlist"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+              >
                 <Heart className="w-5 h-5 text-gray-600" />
-              </button>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                    {wishlistCount > 99 ? "99+" : wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               {/* User — logged in / out */}
               {isLoggedIn ? (

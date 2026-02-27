@@ -4,6 +4,8 @@ export interface GetAllProductsParams {
   page?: number;
   limit?: number;
   category?: string;
+  categoryId?: string;
+  subCategoryId?: string;
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;
@@ -35,6 +37,9 @@ export const productApi = baseApi.injectEndpoints({
         if (params.page) queryParams.append("page", String(params.page));
         if (params.limit) queryParams.append("limit", String(params.limit));
         if (params.category) queryParams.append("category", params.category);
+        if (params.categoryId) queryParams.append("categoryId", params.categoryId);
+        if (params.subCategoryId)
+          queryParams.append("subCategoryId", params.subCategoryId);
         if (params.minPrice !== undefined)
           queryParams.append("minPrice", String(params.minPrice));
         if (params.maxPrice !== undefined)

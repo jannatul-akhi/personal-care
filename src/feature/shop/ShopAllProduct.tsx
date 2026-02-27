@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, ArrowRight, Star } from "lucide-react";
+import { ShoppingCart, ArrowRight, Star, Heart } from "lucide-react";
 import Link from "next/link";
 import { useGetAllProductsQuery } from "@/redux/api/product/productApi";
 import { useAddToCartMutation } from "@/redux/api/cart/cartApi";
+import { useAddToWishlistMutation } from "@/redux/api/wishlist/wishlistApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { Product, Pagination } from "@/interfaces/product";
@@ -13,15 +14,33 @@ import { toast } from "sonner";
 
 const PLACEHOLDER_IMAGE = "/images/hero1.png";
 
-export function ShopAllProduct() {
+interface ShopAllProductProps {
+  filters: {
+    categoryId?: string;
+    subCategoryId?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minRating?: number;
+    sortBy: string;
+    order: "asc" | "desc";
+  };
+  onFilterChange: (newFilters: any) => void;
+}
+
+export function ShopAllProduct({ filters, onFilterChange }: ShopAllProductProps) {
   const [page, setPage] = useState(1);
   const limit = 12;
 
-  const { data, isLoading, isError } = useGetAllProductsQuery({ page, limit });
+  const { data, isLoading, isError } = useGetAllProductsQuery({
+    page,
+    limit,
+    ...filters,
+  });
   const products: Product[] = data?.data || [];
   const pagination: Pagination | undefined = data?.meta?.pagination;
 
   const [addToCart] = useAddToCartMutation();
+  const [addToWishlist] = useAddToWishlistMutation();
   const isLoggedIn = !!useSelector((state: RootState) => state.user?.token);
   const guestCartId = useSelector((state: RootState) => state.cart?.guestCartId);
 
@@ -37,6 +56,20 @@ export function ShopAllProduct() {
       toast.success(`${product.name} added to cart!`);
     } catch {
       toast.error("Failed to add to cart.");
+    }
+  };
+
+  const handleAddToWishlist = async (e: React.MouseEvent, productId: string) => {
+    e.preventDefault();
+    if (!isLoggedIn) {
+      toast.error("Please login to add to wishlist.");
+      return;
+    }
+    try {
+      await addToWishlist(productId).unwrap();
+      toast.success("Added to wishlist!");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to add to wishlist.");
     }
   };
 
@@ -142,6 +175,15 @@ export function ShopAllProduct() {
                           NEW
                         </div>
                       )}
+
+                      {/* Wishlist Button */}
+                      <button
+                        onClick={(e) => handleAddToWishlist(e, product.id)}
+                        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 text-gray-400 hover:text-red-500 hover:bg-white transition-all duration-300 shadow-sm opacity-0 group-hover:opacity-100"
+                        title="Add to Wishlist"
+                      >
+                        <Heart className="w-3.5 h-3.5" />
+                      </button>
 
                       {/* Out of Stock Overlay */}
                       {product.stock === 0 && (

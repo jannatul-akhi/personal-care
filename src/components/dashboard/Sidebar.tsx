@@ -3,17 +3,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, User, MapPin, Heart, Bell, Package } from "lucide-react";
+import { LogOut, User, MapPin, Heart, Star, Package, CheckCircle2 } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 const navItems = [
   { href: "/account", label: "Account Details", icon: User },
   { href: "/address", label: "Address", icon: MapPin },
   { href: "/dashboard/wishlist", label: "Wishlist", icon: Heart },
-  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/dashboard/reviews", label: "My Reviews", icon: Star },
   // Orders sub-menu or separate
   { href: "/dashboard/orders/active", label: "Active Orders", icon: Package },
-  // ...
+  { href: "/dashboard/orders/completed", label: "Completed Orders", icon: CheckCircle2 },
 ];
 
 export default function Sidebar({ user }: { user: any }) {
