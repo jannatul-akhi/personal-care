@@ -25,17 +25,22 @@ interface ShopAllProductProps {
     order: "asc" | "desc";
   };
   onFilterChange: (newFilters: any) => void;
+  data: { data?: Product[]; meta?: { pagination: Pagination } } | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  page: number;
+  onPageChange: (page: number) => void;
 }
 
-export function ShopAllProduct({ filters, onFilterChange }: ShopAllProductProps) {
-  const [page, setPage] = useState(1);
-  const limit = 12;
-
-  const { data, isLoading, isError } = useGetAllProductsQuery({
-    page,
-    limit,
-    ...filters,
-  });
+export function ShopAllProduct({
+  filters,
+  onFilterChange,
+  data,
+  isLoading,
+  isError,
+  page,
+  onPageChange
+}: ShopAllProductProps) {
   const products: Product[] = data?.data || [];
   const pagination: Pagination | undefined = data?.meta?.pagination;
 
@@ -264,7 +269,7 @@ export function ShopAllProduct({ filters, onFilterChange }: ShopAllProductProps)
                   currentPage={pagination.page}
                   totalPages={pagination.totalPages}
                   onPageChange={(newPage) => {
-                    setPage(newPage);
+                    onPageChange(newPage);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />
@@ -275,7 +280,7 @@ export function ShopAllProduct({ filters, onFilterChange }: ShopAllProductProps)
             {pagination && pagination.totalPages <= 1 && pagination.hasNext && (
               <div className="flex justify-center mt-16">
                 <button
-                  onClick={() => setPage((prev) => prev + 1)}
+                  onClick={() => onPageChange(page + 1)}
                   className="bg-[#4a6741] text-white px-8 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-[#3d5435] transition-all shadow-md group"
                 >
                   Load More{" "}

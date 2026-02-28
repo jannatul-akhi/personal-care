@@ -20,6 +20,7 @@ import { logout } from "@/redux/features/user/userSlice";
 import { useGetWishlistQuery } from "@/redux/api/wishlist/wishlistApi";
 import { useGetCartCountQuery } from "@/redux/api/cart/cartApi";
 import { RootState } from "@/redux/store";
+import { useGetCategoryTreeQuery } from "@/redux/api/category/categoryApi";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,6 +51,9 @@ export function Header() {
   });
   const wishlistCount = wishlistData?.data?.items?.length ?? 0;
 
+  const { data: categoryData } = useGetCategoryTreeQuery();
+  const categories = categoryData?.data || [];
+
   const cartCount = cartCountData?.data?.count ?? 0;
 
   // outside click → dropdown বন্ধ
@@ -74,13 +78,10 @@ export function Header() {
     router.push("/login");
   };
 
-  const navItems = [
-    { name: "SKIN CARE", href: "#" },
-    { name: "BODY CARE", href: "#" },
-    { name: "FRAGRANCE", href: "#" },
-    { name: "MAKE UP", href: "#" },
-    { name: "LIP CARE", href: "#" },
-  ];
+  const navItems = categories.slice(0, 5).map(cat => ({
+    name: cat.name.toUpperCase(),
+    href: `/shop?category=${cat.slug}`
+  }));
 
   const displayName = user?.firstName
     ? `${user.firstName} ${user.lastName || ""}`.trim()
@@ -126,13 +127,13 @@ export function Header() {
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className="text-gray-700 hover:text-[#168B86] text-sm font-semibold tracking-wide transition-colors"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </nav>
 
@@ -284,13 +285,14 @@ export function Header() {
             </div>
 
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
                 className="block text-gray-700 hover:text-[#168B86] font-semibold py-2 text-sm"
+                onClick={() => setIsMenuOpen(false)}
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
 
             <div className="pt-3 border-t border-gray-100 space-y-1">
