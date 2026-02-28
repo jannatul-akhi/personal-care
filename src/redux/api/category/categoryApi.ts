@@ -16,7 +16,7 @@ export interface Category {
 
 export const categoryApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getCategoryTree: builder.query<Category[], void>({
+        getCategoryTree: builder.query<{ data: Category[] }, void>({
             query: () => ({
                 url: "/categories/tree",
                 method: "GET",

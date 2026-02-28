@@ -1,18 +1,21 @@
-import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 
 const categories = [
   {
     name: "Women's Care",
     image: "/images/women.png",
+    slug: "womens-care",
   },
   {
     name: "Kids Care",
     image: "/images/kids.png",
+    slug: "kids-care",
   },
   {
     name: "Men's Care",
     image: "/images/man.png",
+    slug: "mens-care",
   },
 ];
 
@@ -22,8 +25,9 @@ export function CareSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {categories.map((category) => (
-            <div
+            <Link
               key={category.name}
+              href={`/shop?category=${category.slug}`}
               className="flex items-center gap-6 bg-[#ecf1ee] rounded-none border border-2 border-transparent hover:border-gray-200 transition-all cursor-pointer text-center ps-3"
             >
               <div className="flex-shrink-0 w-[60px] h-[60px] relative">
@@ -37,7 +41,7 @@ export function CareSection() {
               <h3 className="text-2xl font-serif font-bold text-[#2d4a22] ">
                 {category.name}
               </h3>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

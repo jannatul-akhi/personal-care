@@ -14,6 +14,7 @@ import { useGetCategoryTreeQuery } from "@/redux/api/category/categoryApi";
 
 interface ShopAllProductNavbarProps {
   filters: {
+    category?: string;
     categoryId?: string;
     subCategoryId?: string;
     minPrice?: number;
@@ -48,7 +49,8 @@ export function ShopAllProductNavbar({
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
 
-  const { data: categoryTree } = useGetCategoryTreeQuery();
+  const { data: categoryResponse } = useGetCategoryTreeQuery();
+  const categoryTree = categoryResponse?.data || [];
 
   const toggleTab = (tabId: string) => {
     setActiveTab(activeTab === tabId ? null : tabId);
@@ -63,7 +65,9 @@ export function ShopAllProductNavbar({
       (opt) => opt.sortBy === filters.sortBy && opt.order === filters.order,
     )?.label || "Popularity";
 
-  const selectedCategory = categoryTree?.find((c) => c.id === filters.categoryId);
+  const selectedCategory = Array.isArray(categoryTree)
+    ? categoryTree.find((c: any) => c.id === filters.categoryId || c.slug === filters.category)
+    : undefined;
   const productTypes = selectedCategory?.children || [];
 
   return (
@@ -129,13 +133,13 @@ export function ShopAllProductNavbar({
               <button
                 onClick={() => toggleTab(filter.id)}
                 disabled={filter.id === "type" && !filters.categoryId}
-                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-300 font-serif font-bold text-[#1a1a1a] shadow-sm ${(filter.id === "type" && !filters.categoryId) ? "opacity-50 cursor-not-allowed bg-gray-50" :
-                    activeTab === filter.id ||
-                      (filter.id === "category" && filters.categoryId) ||
-                      (filter.id === "type" && filters.subCategoryId) ||
-                      (filter.id === "rating" && filters.minRating)
-                      ? "bg-[#f3f4f0] border-[#4a6741] ring-2 ring-[#4a6741]/10"
-                      : "bg-[#f3f4f0] border-transparent hover:border-gray-300"
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-300 font-serif font-bold text-[#1a1a1a] shadow-sm ${(filter.id === "type" && !filters.categoryId && !filters.category) ? "opacity-50 cursor-not-allowed bg-gray-50" :
+                  activeTab === filter.id ||
+                    (filter.id === "category" && (filters.categoryId || filters.category)) ||
+                    (filter.id === "type" && filters.subCategoryId) ||
+                    (filter.id === "rating" && filters.minRating)
+                    ? "bg-[#f3f4f0] border-[#4a6741] ring-2 ring-[#4a6741]/10"
+                    : "bg-[#f3f4f0] border-transparent hover:border-gray-300"
                   }`}
               >
                 <span className="text-[15px]">{filter.label}</span>
@@ -192,10 +196,10 @@ export function ShopAllProductNavbar({
                     <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
                       <div
                         onClick={() => {
-                          onFilterChange({ categoryId: undefined, subCategoryId: undefined });
+                          onFilterChange({ categoryId: undefined, category: undefined, subCategoryId: undefined });
                           setActiveTab(null);
                         }}
-                        className={`flex items-center justify-between group cursor-pointer py-1 ${!filters.categoryId ? "text-[#4a6741]" : ""}`}
+                        className={`flex items-center justify-between group cursor-pointer py-1 ${(!filters.categoryId && !filters.category) ? "text-[#4a6741]" : ""}`}
                       >
                         <span className="text-[14px] font-bold transition-colors">
                           All Categories
@@ -205,10 +209,10 @@ export function ShopAllProductNavbar({
                         <div
                           key={cat.id}
                           onClick={() => {
-                            onFilterChange({ categoryId: cat.id, subCategoryId: undefined });
+                            onFilterChange({ categoryId: undefined, category: cat.slug, subCategoryId: undefined });
                             setActiveTab(null);
                           }}
-                          className={`flex items-center justify-between group cursor-pointer py-1 ${filters.categoryId === cat.id ? "text-[#4a6741]" : ""}`}
+                          className={`flex items-center justify-between group cursor-pointer py-1 ${filters.categoryId === cat.id || filters.category === cat.slug ? "text-[#4a6741]" : ""}`}
                         >
                           <span className="text-[14px] font-bold text-gray-600 group-hover:text-[#4a6741] transition-colors">
                             {cat.name}
